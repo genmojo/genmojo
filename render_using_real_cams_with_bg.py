@@ -143,6 +143,7 @@ class GUI:
             depth_scale_factor = (self.depth_scale * metric_depth) / rendered_depth
 
             # Scale background depth
+            self.enlarge_factor =  1.85 if "car-shadow" in self.args.save_path else 1.0
             self.bg_depth_scale_factor = depth_scale_factor * self.enlarge_factor
 
         print(f"Background depth scale factor: {self.bg_depth_scale_factor}")
@@ -221,75 +222,6 @@ class GUI:
 
         export_to_gif(image_list, file_name)
 
-    def render_demo_rotating(self, file_name, hor_range = [170, 190], elev_range = [-10, 10], radius = 2, specify_obj=None, account_for_global_motion=True):
-        render_height, render_width = self.obj_input_dict[0]['input_img_torch_orig_list'][0].shape[-2:]
-        render_cam = OrbitCamera(render_width, render_height, r=radius, fovy=self.opt.fovy)
-
-        image_list = []
-        nframes = self.vid_length * 5
-        # Calculate delta_hor for smooth oscillation
-        total_angle = (hor_range[1] - hor_range[0])
-        delta_hor = 2 * total_angle / nframes  # Double the angle change to account for back and forth
-        time = 0
-        delta_time = 1
-        direction = 1  # 1 for moving right, -1 for moving left
-        current_hor = hor_range[0]
-
-        total_elev_angle = (elev_range[1] - elev_range[0])
-        delta_elev = 2 * total_elev_angle / nframes
-        elev_direction = 1
-        current_elev = elev_range[0]
-
-        for _ in range(nframes):
-            pose = orbit_camera(current_elev, current_hor-180, radius)
-            cur_cam = MiniCam(
-                pose,
-                render_width,
-                render_height,
-                render_cam.fovy,
-                render_cam.fovx,
-                render_cam.near,
-                render_cam.far,
-                time=time
-            )
-            with torch.no_grad():
-                outputs = self.renderer.render_all(
-                    cur_cam,
-                    default_camera_center=self.fixed_cam.camera_center,
-                    direct_render=True,
-                    specify_obj=specify_obj,
-                    account_for_global_motion=account_for_global_motion,
-                    cut_gaussians=True
-                )
-
-            out = outputs["image"].cpu().detach().numpy().astype(np.float32)
-            out = np.transpose(out, (1, 2, 0))
-            out = Image.fromarray(np.uint8(out*255))
-            image_list.append(out)
-
-            time = (time + delta_time) % self.vid_length
-            
-            # Update horizontal angle with oscillation
-            current_hor += direction * delta_hor
-            # Change direction when reaching bounds
-            if current_hor >= hor_range[1]:
-                current_hor = hor_range[1]
-                direction = -1
-            elif current_hor <= hor_range[0]:
-                current_hor = hor_range[0]
-                direction = 1
-            
-            current_elev += elev_direction * delta_elev
-            if current_elev >= elev_range[1]:
-                current_elev = elev_range[1]
-                elev_direction = -1
-            elif current_elev <= elev_range[0]:
-                current_elev = elev_range[0]
-                elev_direction = 1
-
-        print('export to GIF')
-        export_to_gif(image_list, file_name)
-
     @classmethod
     def load_state(cls, opt, folder_path: str):
         with open(os.path.join(folder_path, 'gui.pkl'), 'rb') as f:
@@ -335,14 +267,6 @@ class GUI:
         # render real cam
         self.render_visualization_real_cam(
             file_name=os.path.join(self.opt.visdir, f'{self.opt.save_path}_real_cam.gif'),
-        )
-
-        self.render_demo_rotating(
-            file_name=os.path.join(self.opt.visdir, f'{self.opt.save_path}_rotating.gif'), 
-            hor_range=[170, 190], 
-            elev_range=[-20, 0], 
-            radius=2.5, 
-            account_for_global_motion=True
         )
 
 if __name__ == "__main__":

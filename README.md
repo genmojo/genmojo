@@ -60,8 +60,8 @@ We provide two versions of our model: one without background optimization, and o
 For demo 1, we will demonstrate the results without background optimization.
 <table>
   <tr>
-    <td style="text-align: center; vertical-align: middle;"><img src="demo_visuals/crossing_orig.gif" width="99%"></td>
     <td style="text-align: center; vertical-align: middle;"><img src="demo_visuals/crossing.gif" width="99%"></td>
+    <td style="text-align: center; vertical-align: middle;"><img src="demo_visuals/crossing_trajs.gif" width="99%"></td>
     <td style="text-align: center; vertical-align: middle;"><img src="demo_visuals/crossing_rotating.gif" width="99%"></td>
   </tr>
 </table>
@@ -75,7 +75,7 @@ python run.py --lite --data_dir ./data/JPEGImages/crossing --mask_dir ./data/Ann
 * `--lite`: (Optional), runs the script with less optimization steps. Trade-off between speed and performance.
 * `--disable_guidance`: (Optional), runs the script without SDS guidance. You probably only want to specify this for ablations.
 * `--data_dir`: Directory where the RGB frames are saved.
-* `--mask_dir`: Directory where the maks annotations are saved.
+* `--mask_dir`: Directory where the mask annotations are saved.
 * `--save_name`: Identifier name for the saved files.
 
 You can also run ```python run.py --help``` to see other optional arguments alongside with their descriptions.
@@ -84,8 +84,8 @@ You can also run ```python run.py --help``` to see other optional arguments alon
 For demo 2, we will demonstrate the results with background optimization.
 <table>
   <tr>
-    <td style="text-align: center; vertical-align: middle;"><img src="demo_visuals/car-shadow_orig.gif" width="99%"></td>
     <td style="text-align: center; vertical-align: middle;"><img src="demo_visuals/car-shadow.gif" width="99%"></td>
+    <td style="text-align: center; vertical-align: middle;"><img src="demo_visuals/car-shadow_trajs.gif" width="99%"></td>
     <td style="text-align: center; vertical-align: middle;"><img src="demo_visuals/car-shadow_rotating.gif" width="99%"></td>
   </tr>
 </table>
@@ -94,13 +94,15 @@ This example contains a car driving to the left, while the camera similar looks 
 ```bash
 # This version optimizes the background using the inpainted background and MegaSAM outputs.
 # Note that the quality is *extremely* dependent on MegaSAM's depth estimation, which may not be temporally consistent.
-python run_bg.py --lite --data_dir ./data/car-shadow/JPEGImages --mask_dir ./data/car-shadow/Annotations --cam_path ./data/car-shadow/MegaSAM_Outputs/car-shadow_sgd_cvd_hr.npz --save_name car-shadow
+python run_bg.py --lite --data_dir ./data/car-shadow/JPEGImages --mask_dir ./data/car-shadow/Annotations --bg_path ./data/car-shadow/InpaintedBackgrounds/00000.jpg  --cam_path ./data/car-shadow/MegaSAM_Outputs/car-shadow_sgd_cvd_hr.npz --save_name car-shadow
 ```
 
 * `--lite`: (Optional), runs the script with less optimization steps. Trade-off between speed and performance.
 * `--disable_guidance`: (Optional), runs the script without SDS guidance. You probably only want to specify this for ablations.
 * `--data_dir`: Directory where the RGB frames are saved.
-* `--mask_dir`: Directory where the maks annotations are saved.
+* `--mask_dir`: Directory where the mask annotations are saved.
+* `--bg_path`: File of the inpainted background. You can use some online tool to do inpainting.
+* `--cam_path`: File where the depth and camera poses are saved by MegaSAM.
 * `--save_name`: Identifier name for the saved files.
 
 Like in demo 1, you can run ```python run_bg.py --help``` to see other optional arguments alongside with their descriptions.
@@ -128,6 +130,8 @@ data
 │     └── ...
 ├── MegaSAM_Outputs (Optional, only if you want background AND to use real camera poses)
 |   └── xxx.npz (need to contain depth and camera poses)
+├── InpaintedBackgrounds (Optional, only if you want background)
+|   └── 00000.png
 ```
 
 We use *JPEGImages* and *Annotations* for optimizations. Directories marked as optional is only needed if you want to enable the respective functions.
@@ -174,4 +178,4 @@ If you find GenMOJO useful in your research or refer to the provided baseline re
 ```
 
 ## Acknowledgments
-- Thanks to [DEVA](https://github.com/hkchengrex/Tracking-Anything-with-DEVA), [DreamGaussian](https://dreamgaussian.github.io/), [HQ-SAM](https://github.com/SysCV/sam-hq/), [DreamGaussian4D](https://jiawei-ren.github.io/projects/dreamgaussian4d/), and [3D Gaussian Splatting](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/) for their public code and released models.
+- Thanks to [DEVA](https://github.com/hkchengrex/Tracking-Anything-with-DEVA), [DreamGaussian](https://dreamgaussian.github.io/), [HQ-SAM](https://github.com/SysCV/sam-hq/), [DreamGaussian4D](https://jiawei-ren.github.io/projects/dreamgaussian4d/), [DreamScene4D](https://dreamscene4d.github.io/), and [3D Gaussian Splatting](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/) for their public code and released models.

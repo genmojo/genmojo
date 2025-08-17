@@ -6,6 +6,7 @@ import subprocess
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', type=str, help="Path to RGB directory.")
 parser.add_argument('--mask_dir', type=str, help="Path to mask directory.")
+parser.add_argument('--bg_path', type=str, help="Path to inpainted background.")
 parser.add_argument('--cam_path', type=str, help="Path to cam poses and depth from MegaSAM.")
 parser.add_argument('--save_name', type=str, help="Identifier for the video, determines filenames that will be saved.")
 parser.add_argument('--out_dir', type=str, default="./gaussians", help="Path to where Gaussians and network weights will be stored.")
@@ -34,7 +35,7 @@ if __name__ == "__main__":
         subprocess.Popen(command, shell=True).wait()
     
     # optimize background
-    bg_img = frame0
+    bg_img = args.bg_path
     bg_mask = os.path.join(args.mask_dir, '000', frame0_name)
     command = f'python main_bg_inpaint.py --config configs/image.yaml cam_path={cam_path} bg_input={bg_img} bg_mask={bg_mask} outdir={args.out_dir} visdir={args.vis_dir} save_path={args.save_name}_bg'
     subprocess.Popen(command, shell=True).wait()
