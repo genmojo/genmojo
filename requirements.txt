@@ -1,0 +1,36 @@
+torch >= 2.0.0
+tqdm
+rich
+ninja
+numpy
+pandas
+scipy
+scikit-learn
+matplotlib
+imageio
+imageio-ffmpeg
+omegaconf
+
+einops
+plyfile
+pygltflib
+hydra-core
+tensorboard
+lpips
+
+# for stable-diffusion
+huggingface-hub==0.25.2
+accelerate
+transformers
+
+# for dmtet and mesh export
+xatlas
+trimesh
+PyMCubes==0.1.4
+pymeshlab==0.2
+kornia
+opencv-python
+torchmetrics
+
+# for depth crafter
+diffusers==0.31.0
